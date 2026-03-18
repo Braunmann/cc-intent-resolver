@@ -123,6 +123,10 @@ contract IntentHub {
 
         IERC20(intent.inputToken).safeTransfer(intent.maker, intent.inputAmount);
     }
+
+    function getIntent(bytes32 intentId) external view returns (Intent memory) {
+        return intents[intentId];
+    }
 }
 
  
