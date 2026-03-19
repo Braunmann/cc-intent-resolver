@@ -125,4 +125,55 @@ contract IntentHubTest is Test {
             uint64(block.timestamp + 1 hours)
         );
     }
+
+    function test_fulfillIntent_setsStatusToFulfilled() public {
+        vm.startPrank(maker);
+
+        token.approve(address(intentHub), 100e18);
+
+        address solver = address(0x123);
+
+        bytes32 intentId = intentHub.createIntent(
+            address(token),
+            100e18,
+            address(token),
+            50e18,
+            1,
+            recipient,
+            uint64(block.timestamp + 1 hours)
+        );
+
+        intentHub.fulfillIntent(intentId, solver);
+        vm.stopPrank();
+
+        Intent memory intent = intentHub.getIntent(intentId);
+        assertEq(uint8(intent.status), uint8(IntentStatus.Fulfilled));
+    }
+
+    function test_settleIntent_transfersEscrowToSolver() public {
+        vm.startPrank(maker);
+        token.approve(address(intentHub), 100e18);
+        
+        bytes32 intentId = intentHub.createIntent(
+            address(token),
+            100e18,
+            address(token),
+            50e18,
+            1,
+            recipient,
+            uint64(block.timestamp + 1 hours)
+        );
+        vm.stopPrank();
+
+        address solver = address(0x123);
+        vm.startPrank(address(solver));    
+
+        intentHub.fulfillIntent(intentId, solver);
+        intentHub.settleIntent(intentId);
+
+        vm.stopPrank();
+        
+        assertEq(token.balanceOf(solver), 100e18);
+    }
+
 }
