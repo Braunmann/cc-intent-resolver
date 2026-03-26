@@ -8,3 +8,7 @@ libs = ["lib"]
 remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/"
 ]
+
+[rpc_endpoints]
+sepolia = "${SEPOLIA_RPC_URL}"
+op_sepolia = "${OP_SEPOLIA_RPC_URL}"
