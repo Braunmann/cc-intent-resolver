@@ -12,13 +12,14 @@ docs/
 
 # Environment files
 .env
-.env.*
 
 # Local tooling
 .agents/
 .skills/
 skills-lock.json
 .windsurf/
+
+notes.txt
 
 # Editor / OS
 .vscode/
