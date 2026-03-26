@@ -13,8 +13,11 @@ enum IntentStatus {
 error ZeroAmount();
 error DeadlineInPast();
 error NotIntentMaker();
+error NotIntentSolver();
 error IntentNotFound();
 error IntentNotCancellable();
+error IntentNotFulfillable();
+error IntentNotSettleable();
 
 event IntentCreated(
     bytes32 indexed intentId, // filter by indexed field
@@ -30,6 +33,8 @@ event IntentCreated(
 );
 
 event IntentCancelled(bytes32 indexed intentId);
+event IntentFulfilled(bytes32 indexed intentId);
+event IntentSettled(bytes32 indexed intentId);
 
 struct Intent {
     bytes32 id;
@@ -37,6 +42,7 @@ struct Intent {
     address inputToken;
     uint256 inputAmount;
     address outputToken;
+    address solver;
     uint256 minOutputAmount;
     uint32 targetChainId;
     address recipient;
@@ -83,6 +89,7 @@ contract IntentHub {
             inputToken: inputToken,
             inputAmount: inputAmount,
             outputToken: outputToken,
+            solver: address(0),
             minOutputAmount: minOutputAmount,
             targetChainId: targetChainId,
             recipient: recipient,
@@ -127,6 +134,31 @@ contract IntentHub {
     function getIntent(bytes32 intentId) external view returns (Intent memory) {
         return intents[intentId];
     }
+
+    function fulfillIntent(bytes32 intentId, address solver) external {
+        Intent storage intent = intents[intentId];
+        if(intent.maker == address(0)) revert IntentNotFound();
+        if(intent.status != IntentStatus.Created) revert IntentNotFulfillable();
+        if(intent.deadline < block.timestamp) revert DeadlineInPast();
+        intent.solver = solver;
+        intent.status = IntentStatus.Fulfilled;
+
+        emit IntentFulfilled(intentId);
+    }
+
+    function settleIntent(bytes32 intentId) external {
+        Intent storage intent = intents[intentId];
+        if(intent.maker == address(0)) revert IntentNotFound();
+        if(intent.status != IntentStatus.Fulfilled) revert IntentNotSettleable();
+        if(intent.solver != msg.sender) revert NotIntentSolver();
+        
+        intent.status = IntentStatus.Settled;
+        
+        emit IntentSettled(intentId);
+
+        IERC20(intent.inputToken).safeTransfer(intent.solver, intent.inputAmount);
+    }
+
 }
 
  
