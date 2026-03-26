@@ -3,9 +3,9 @@ cache/
 out/
 
 # Development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
+/contracts/broadcast/
+/contracts/cache/
+/contracts/out/
 
 # Generated docs
 docs/
