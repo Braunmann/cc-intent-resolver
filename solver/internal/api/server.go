@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"solver/internal/store"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Server struct {
@@ -22,6 +24,7 @@ func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/intents", s.handleGetIntents)
+	mux.HandleFunc("/intents/{id}", s.handleGetIntent)
 
 	return http.ListenAndServe(s.port, mux)
 }
@@ -36,4 +39,19 @@ func (s *Server) handleGetIntents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(intents)
+}
+
+func (s *Server) handleGetIntent(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	hash := common.HexToHash(id)
+
+	intent, ok := s.store.Get(hash)
+	if !ok {
+		http.Error(w, "Intent not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(intent)
 }
