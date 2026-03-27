@@ -45,7 +45,7 @@ func LoadABI(path string) (*abi.ABI, error) {
 	return &parsed, nil
 }
 
-func NewChainLitener(rpcURL string, contractAddr common.Address, store *store.IntentStore) (*ChainListener, error) {
+func NewChainListener(rpcURL string, contractAddr common.Address, store *store.IntentStore) (*ChainListener, error) {
 	contractABI, err := LoadABI("internal/chain/IntentHub.json")
 	if err != nil {
 		return nil, err
