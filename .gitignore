@@ -27,3 +27,6 @@ notes.txt
 .idea/
 .DS_Store
 
+
+# Solver
+solver/internal/chain/IntentHub.json
