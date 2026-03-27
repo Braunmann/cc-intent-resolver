@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"solver/internal/api"
 	"solver/internal/chain"
 	"solver/internal/store"
 
@@ -14,26 +15,58 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+type Config struct {
+	SepoliaRPC   string
+	ContractAddr common.Address
+	APIPort      string
+}
+
+func loadConfig() Config {
 	godotenv.Load()
+	return Config{
+		SepoliaRPC:   os.Getenv("SEPOLIA_WSS_URL"),
+		ContractAddr: common.HexToAddress(os.Getenv("CONTRACT_ADDRESS")),
+		APIPort:      os.Getenv("API_PORT"),
+	}
+}
 
-	sepoliaRPC := os.Getenv("SEPOLIA_WSS_URL")
-	contractAddr := common.HexToAddress(os.Getenv("CONTRACT_ADDRESS"))
-
-	intentStore := store.NewIntentStore()
-
+func mustCreateListener(sepoliaRPC string, contractAddr common.Address, intentStore *store.IntentStore) *chain.ChainListener {
 	listener, err := chain.NewChainListener(sepoliaRPC, contractAddr, intentStore)
 	if err != nil {
 		fmt.Println("Error creating chain listener:", err)
 		os.Exit(1)
 	}
+	fmt.Println("Listening for intents on")
+	return listener
+}
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+func mustCreateServer(apiPort string, intentStore *store.IntentStore) *api.Server {
+	server, err := api.NewServer(intentStore, apiPort)
+	if err != nil {
+		fmt.Println("Error creating server:", err)
+		os.Exit(1)
+	}
+	fmt.Println("API server started on port", apiPort)
+	return server
+}
+
+func waitForShutdown() (context.Context, context.CancelFunc) {
+	return signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+}
+
+func main() {
+	config := loadConfig()
+
+	intentStore := store.NewIntentStore()
+
+	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore)
+	server := mustCreateServer(":"+config.APIPort, intentStore)
+
+	ctx, cancel := waitForShutdown()
 	defer cancel()
 
-	fmt.Println("Listening for intents...")
+	go server.Start()
 
-	if err := listener.Listen(ctx); err != nil {
-		fmt.Println("listener error:", err)
-	}
+	fmt.Println("solver started")
+	listener.Listen(ctx)
 }
