@@ -36,10 +36,11 @@ type IntentStore struct {
 	intents map[common.Hash]Intent
 }
 
-func (s *IntentStore) Save(intent Intent) {
+func (s *IntentStore) Save(intent Intent) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.intents[intent.ID] = intent
+	return nil
 }
 
 func (s *IntentStore) Get(id common.Hash) (Intent, bool) {

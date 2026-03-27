@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"solver/internal/store"
 
@@ -101,10 +102,41 @@ func (l *ChainListener) Listen(ctx context.Context) error {
 	}
 }
 
+func (l *ChainListener) handleIntentCreated(log types.Log) error {
+	event := make(map[string]interface{})
+	if err := l.contractABI.UnpackIntoMap(event, "IntentCreated", log.Data); err != nil {
+		return err
+	}
+
+	intentId := log.Topics[1]
+	maker := common.BytesToAddress(log.Topics[2].Bytes())
+
+	intent := store.Intent{
+		ID:              intentId,
+		Maker:           maker,
+		InputToken:      event["inputToken"].(common.Address),
+		InputAmount:     event["inputAmount"].(*big.Int),
+		OutputToken:     event["outputToken"].(common.Address),
+		MinOutputAmount: event["minOutputAmount"].(*big.Int),
+		TargetChainId:   event["targetChainId"].(uint32),
+		Recipient:       event["recipient"].(common.Address),
+		Deadline:        event["deadline"].(uint64),
+		Nonce:           event["nonce"].(uint64),
+		Status:          store.IntentStatusCreated,
+	}
+
+	if err := l.store.Save(intent); err != nil {
+		return err
+	}
+
+	fmt.Printf("IntentCreated: %v\n", event)
+	return nil
+}
+
 func (l *ChainListener) handleLog(log types.Log) error {
 	switch log.Topics[0] {
 	case l.contractABI.Events["IntentCreated"].ID:
-		fmt.Println("IntentCreated")
+		return l.handleIntentCreated(log)
 	case l.contractABI.Events["IntentFulfilled"].ID:
 		fmt.Println("IntentFulfilled")
 	case l.contractABI.Events["IntentSettled"].ID:
