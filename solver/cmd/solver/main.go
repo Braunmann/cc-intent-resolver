@@ -17,6 +17,7 @@ import (
 
 type Config struct {
 	SepoliaRPC   string
+	OPSepoliaRPC string
 	ContractAddr common.Address
 	APIPort      string
 }
@@ -25,18 +26,19 @@ func loadConfig() Config {
 	godotenv.Load()
 	return Config{
 		SepoliaRPC:   os.Getenv("SEPOLIA_WSS_URL"),
+		OPSepoliaRPC: os.Getenv("OP_SEPOLIA_WSS_URL"),
 		ContractAddr: common.HexToAddress(os.Getenv("CONTRACT_ADDRESS")),
 		APIPort:      os.Getenv("API_PORT"),
 	}
 }
 
-func mustCreateListener(sepoliaRPC string, contractAddr common.Address, intentStore *store.IntentStore) *chain.ChainListener {
-	listener, err := chain.NewChainListener(sepoliaRPC, contractAddr, intentStore)
+func mustCreateListener(rpcURL string, contractAddr common.Address, intentStore *store.IntentStore) *chain.ChainListener {
+	listener, err := chain.NewChainListener(rpcURL, contractAddr, intentStore)
 	if err != nil {
 		fmt.Println("Error creating chain listener:", err)
 		os.Exit(1)
 	}
-	fmt.Println("Listening for intents on")
+	fmt.Println("Listening for intents on", rpcURL)
 	return listener
 }
 
@@ -60,13 +62,27 @@ func main() {
 	intentStore := store.NewIntentStore()
 
 	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore)
+	opListener := mustCreateListener(config.OPSepoliaRPC, config.ContractAddr, intentStore)
+
 	server := mustCreateServer(":"+config.APIPort, intentStore)
 
 	ctx, cancel := waitForShutdown()
 	defer cancel()
 
+	errChan := make(chan error, 2)
+
+	go func() { errChan <- listener.Listen(ctx) }()
+	go func() { errChan <- opListener.Listen(ctx) }()
+
 	go server.Start()
 
 	fmt.Println("solver started")
-	listener.Listen(ctx)
+
+	select {
+	case err := <-errChan:
+		fmt.Println("listener error:", err)
+		cancel()
+	case <-ctx.Done():
+		fmt.Println("solver stopped")
+	}
 }
