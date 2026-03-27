@@ -50,14 +50,14 @@ func (s *IntentStore) Get(id common.Hash) (Intent, bool) {
 	return intent, ok
 }
 
-func (s *IntentStore) GetAll() []Intent {
+func (s *IntentStore) GetAll() ([]Intent, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	intents := make([]Intent, 0, len(s.intents))
 	for _, intent := range s.intents {
 		intents = append(intents, intent)
 	}
-	return intents
+	return intents, nil
 }
 
 func NewIntentStore() *IntentStore {
