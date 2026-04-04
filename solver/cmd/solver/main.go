@@ -9,6 +9,7 @@ import (
 
 	"solver/internal/api"
 	"solver/internal/chain"
+	"solver/internal/executor"
 	"solver/internal/store"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -20,6 +21,7 @@ type Config struct {
 	OPSepoliaRPC string
 	ContractAddr common.Address
 	APIPort      string
+	SolverKey    string
 }
 
 func loadConfig() Config {
@@ -29,11 +31,12 @@ func loadConfig() Config {
 		OPSepoliaRPC: os.Getenv("OP_SEPOLIA_WSS_URL"),
 		ContractAddr: common.HexToAddress(os.Getenv("CONTRACT_ADDRESS")),
 		APIPort:      os.Getenv("API_PORT"),
+		SolverKey:    os.Getenv("SOLVER_KEY"),
 	}
 }
 
-func mustCreateListener(rpcURL string, contractAddr common.Address, intentStore *store.IntentStore) *chain.ChainListener {
-	listener, err := chain.NewChainListener(rpcURL, contractAddr, intentStore)
+func mustCreateListener(rpcURL string, contractAddr common.Address, intentStore *store.IntentStore, executor *executor.Executor) *chain.ChainListener {
+	listener, err := chain.NewChainListener(rpcURL, contractAddr, intentStore, executor)
 	if err != nil {
 		fmt.Println("Error creating chain listener:", err)
 		os.Exit(1)
@@ -56,13 +59,23 @@ func waitForShutdown() (context.Context, context.CancelFunc) {
 	return signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 }
 
+func mustCreateExecutor(rpcURL string, contractAddr common.Address, solverKey string, intentStore *store.IntentStore) *executor.Executor {
+	executor, err := executor.NewExecutor(rpcURL, contractAddr, solverKey, intentStore)
+	if err != nil {
+		fmt.Println("Error creating executor:", err)
+		os.Exit(1)
+	}
+	return executor
+}
+
 func main() {
 	config := loadConfig()
 
 	intentStore := store.NewIntentStore()
 
-	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore)
-	opListener := mustCreateListener(config.OPSepoliaRPC, config.ContractAddr, intentStore)
+	executor := mustCreateExecutor(config.SepoliaRPC, config.ContractAddr, config.SolverKey, intentStore)
+	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore, executor)
+	opListener := mustCreateListener(config.OPSepoliaRPC, config.ContractAddr, intentStore, executor)
 
 	server := mustCreateServer(":"+config.APIPort, intentStore)
 

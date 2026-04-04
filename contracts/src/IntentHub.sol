@@ -32,9 +32,18 @@ event IntentCreated(
     uint64 nonce
 );
 
-event IntentCancelled(bytes32 indexed intentId);
-event IntentFulfilled(bytes32 indexed intentId);
-event IntentSettled(bytes32 indexed intentId);
+event IntentCancelled(
+    bytes32 indexed intentId
+);
+
+event IntentFulfilled(
+    bytes32 indexed intentId,
+    address indexed solverAddr
+);
+
+event IntentSettled(
+    bytes32 indexed intentId
+);
 
 struct Intent {
     bytes32 id;
@@ -135,15 +144,15 @@ contract IntentHub {
         return intents[intentId];
     }
 
-    function fulfillIntent(bytes32 intentId, address solver) external {
+    function fulfillIntent(bytes32 intentId, address solverAddr) external {
         Intent storage intent = intents[intentId];
         if(intent.maker == address(0)) revert IntentNotFound();
         if(intent.status != IntentStatus.Created) revert IntentNotFulfillable();
         if(intent.deadline < block.timestamp) revert DeadlineInPast();
-        intent.solver = solver;
+        intent.solver = solverAddr;
         intent.status = IntentStatus.Fulfilled;
 
-        emit IntentFulfilled(intentId);
+        emit IntentFulfilled(intentId, solverAddr);
     }
 
     function settleIntent(bytes32 intentId) external {

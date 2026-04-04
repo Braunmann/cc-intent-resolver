@@ -47,7 +47,7 @@ type Intent struct {
 
 // IntentHubMetaData contains all meta data concerning the IntentHub contract.
 var IntentHubMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"function\",\"name\":\"cancelIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"createIntent\",\"inputs\":[{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"fulfillIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"solver\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"getIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIntent\",\"components\":[{\"name\":\"id\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"solver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"status\",\"type\":\"uint8\",\"internalType\":\"enumIntentStatus\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"intents\",\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"id\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"solver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"status\",\"type\":\"uint8\",\"internalType\":\"enumIntentStatus\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nonces\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint64\",\"internalType\":\"uint64\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"settleIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"IntentCancelled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentCreated\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"indexed\":false,\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentFulfilled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentSettled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"DeadlineInPast\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotCancellable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotFound\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotFulfillable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotSettleable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotIntentMaker\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotIntentSolver\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ZeroAmount\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"function\",\"name\":\"cancelIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"createIntent\",\"inputs\":[{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"fulfillIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"solverAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"getIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"tuple\",\"internalType\":\"structIntent\",\"components\":[{\"name\":\"id\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"solver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"status\",\"type\":\"uint8\",\"internalType\":\"enumIntentStatus\"}]}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"intents\",\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"id\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"solver\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"internalType\":\"uint64\"},{\"name\":\"status\",\"type\":\"uint8\",\"internalType\":\"enumIntentStatus\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nonces\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint64\",\"internalType\":\"uint64\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"settleIntent\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"IntentCancelled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentCreated\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"maker\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"inputToken\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"inputAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"outputToken\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"minOutputAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"targetChainId\",\"type\":\"uint32\",\"indexed\":false,\"internalType\":\"uint32\"},{\"name\":\"recipient\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"deadline\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"},{\"name\":\"nonce\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentFulfilled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"solverAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"IntentSettled\",\"inputs\":[{\"name\":\"intentId\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"DeadlineInPast\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotCancellable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotFound\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotFulfillable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"IntentNotSettleable\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotIntentMaker\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotIntentSolver\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ZeroAmount\",\"inputs\":[]}]",
 }
 
 // IntentHubABI is the input ABI used to generate the binding from.
@@ -397,23 +397,23 @@ func (_IntentHub *IntentHubTransactorSession) CreateIntent(inputToken common.Add
 
 // FulfillIntent is a paid mutator transaction binding the contract method 0x2b15ece0.
 //
-// Solidity: function fulfillIntent(bytes32 intentId, address solver) returns()
-func (_IntentHub *IntentHubTransactor) FulfillIntent(opts *bind.TransactOpts, intentId [32]byte, solver common.Address) (*types.Transaction, error) {
-	return _IntentHub.contract.Transact(opts, "fulfillIntent", intentId, solver)
+// Solidity: function fulfillIntent(bytes32 intentId, address solverAddr) returns()
+func (_IntentHub *IntentHubTransactor) FulfillIntent(opts *bind.TransactOpts, intentId [32]byte, solverAddr common.Address) (*types.Transaction, error) {
+	return _IntentHub.contract.Transact(opts, "fulfillIntent", intentId, solverAddr)
 }
 
 // FulfillIntent is a paid mutator transaction binding the contract method 0x2b15ece0.
 //
-// Solidity: function fulfillIntent(bytes32 intentId, address solver) returns()
-func (_IntentHub *IntentHubSession) FulfillIntent(intentId [32]byte, solver common.Address) (*types.Transaction, error) {
-	return _IntentHub.Contract.FulfillIntent(&_IntentHub.TransactOpts, intentId, solver)
+// Solidity: function fulfillIntent(bytes32 intentId, address solverAddr) returns()
+func (_IntentHub *IntentHubSession) FulfillIntent(intentId [32]byte, solverAddr common.Address) (*types.Transaction, error) {
+	return _IntentHub.Contract.FulfillIntent(&_IntentHub.TransactOpts, intentId, solverAddr)
 }
 
 // FulfillIntent is a paid mutator transaction binding the contract method 0x2b15ece0.
 //
-// Solidity: function fulfillIntent(bytes32 intentId, address solver) returns()
-func (_IntentHub *IntentHubTransactorSession) FulfillIntent(intentId [32]byte, solver common.Address) (*types.Transaction, error) {
-	return _IntentHub.Contract.FulfillIntent(&_IntentHub.TransactOpts, intentId, solver)
+// Solidity: function fulfillIntent(bytes32 intentId, address solverAddr) returns()
+func (_IntentHub *IntentHubTransactorSession) FulfillIntent(intentId [32]byte, solverAddr common.Address) (*types.Transaction, error) {
+	return _IntentHub.Contract.FulfillIntent(&_IntentHub.TransactOpts, intentId, solverAddr)
 }
 
 // SettleIntent is a paid mutator transaction binding the contract method 0x7bf8bb88.
@@ -811,38 +811,47 @@ func (it *IntentHubIntentFulfilledIterator) Close() error {
 
 // IntentHubIntentFulfilled represents a IntentFulfilled event raised by the IntentHub contract.
 type IntentHubIntentFulfilled struct {
-	IntentId [32]byte
-	Raw      types.Log // Blockchain specific contextual infos
+	IntentId   [32]byte
+	SolverAddr common.Address
+	Raw        types.Log // Blockchain specific contextual infos
 }
 
-// FilterIntentFulfilled is a free log retrieval operation binding the contract event 0x0c18079d729f8e6d119764c23f720af06195b6fd66cb2fcb021c049e2c6a86f4.
+// FilterIntentFulfilled is a free log retrieval operation binding the contract event 0xd9033f0635d2f730e1f8385eaf46308e77de7a02d79526d9872ff7a6a291ef01.
 //
-// Solidity: event IntentFulfilled(bytes32 indexed intentId)
-func (_IntentHub *IntentHubFilterer) FilterIntentFulfilled(opts *bind.FilterOpts, intentId [][32]byte) (*IntentHubIntentFulfilledIterator, error) {
+// Solidity: event IntentFulfilled(bytes32 indexed intentId, address indexed solverAddr)
+func (_IntentHub *IntentHubFilterer) FilterIntentFulfilled(opts *bind.FilterOpts, intentId [][32]byte, solverAddr []common.Address) (*IntentHubIntentFulfilledIterator, error) {
 
 	var intentIdRule []interface{}
 	for _, intentIdItem := range intentId {
 		intentIdRule = append(intentIdRule, intentIdItem)
 	}
+	var solverAddrRule []interface{}
+	for _, solverAddrItem := range solverAddr {
+		solverAddrRule = append(solverAddrRule, solverAddrItem)
+	}
 
-	logs, sub, err := _IntentHub.contract.FilterLogs(opts, "IntentFulfilled", intentIdRule)
+	logs, sub, err := _IntentHub.contract.FilterLogs(opts, "IntentFulfilled", intentIdRule, solverAddrRule)
 	if err != nil {
 		return nil, err
 	}
 	return &IntentHubIntentFulfilledIterator{contract: _IntentHub.contract, event: "IntentFulfilled", logs: logs, sub: sub}, nil
 }
 
-// WatchIntentFulfilled is a free log subscription operation binding the contract event 0x0c18079d729f8e6d119764c23f720af06195b6fd66cb2fcb021c049e2c6a86f4.
+// WatchIntentFulfilled is a free log subscription operation binding the contract event 0xd9033f0635d2f730e1f8385eaf46308e77de7a02d79526d9872ff7a6a291ef01.
 //
-// Solidity: event IntentFulfilled(bytes32 indexed intentId)
-func (_IntentHub *IntentHubFilterer) WatchIntentFulfilled(opts *bind.WatchOpts, sink chan<- *IntentHubIntentFulfilled, intentId [][32]byte) (event.Subscription, error) {
+// Solidity: event IntentFulfilled(bytes32 indexed intentId, address indexed solverAddr)
+func (_IntentHub *IntentHubFilterer) WatchIntentFulfilled(opts *bind.WatchOpts, sink chan<- *IntentHubIntentFulfilled, intentId [][32]byte, solverAddr []common.Address) (event.Subscription, error) {
 
 	var intentIdRule []interface{}
 	for _, intentIdItem := range intentId {
 		intentIdRule = append(intentIdRule, intentIdItem)
 	}
+	var solverAddrRule []interface{}
+	for _, solverAddrItem := range solverAddr {
+		solverAddrRule = append(solverAddrRule, solverAddrItem)
+	}
 
-	logs, sub, err := _IntentHub.contract.WatchLogs(opts, "IntentFulfilled", intentIdRule)
+	logs, sub, err := _IntentHub.contract.WatchLogs(opts, "IntentFulfilled", intentIdRule, solverAddrRule)
 	if err != nil {
 		return nil, err
 	}
@@ -874,9 +883,9 @@ func (_IntentHub *IntentHubFilterer) WatchIntentFulfilled(opts *bind.WatchOpts, 
 	}), nil
 }
 
-// ParseIntentFulfilled is a log parse operation binding the contract event 0x0c18079d729f8e6d119764c23f720af06195b6fd66cb2fcb021c049e2c6a86f4.
+// ParseIntentFulfilled is a log parse operation binding the contract event 0xd9033f0635d2f730e1f8385eaf46308e77de7a02d79526d9872ff7a6a291ef01.
 //
-// Solidity: event IntentFulfilled(bytes32 indexed intentId)
+// Solidity: event IntentFulfilled(bytes32 indexed intentId, address indexed solverAddr)
 func (_IntentHub *IntentHubFilterer) ParseIntentFulfilled(log types.Log) (*IntentHubIntentFulfilled, error) {
 	event := new(IntentHubIntentFulfilled)
 	if err := _IntentHub.contract.UnpackLog(event, "IntentFulfilled", log); err != nil {

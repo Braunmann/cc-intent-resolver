@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	bindings "solver/internal/bindings"
 	"solver/internal/store"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -21,6 +22,7 @@ type Executor struct {
 }
 
 func NewExecutor(rpcURL string, contractAddr common.Address, solverKey string, store *store.IntentStore) (*Executor, error) {
+	solverKey = strings.TrimPrefix(solverKey, "0x")
 	solverKeyECDSA, err := crypto.HexToECDSA(solverKey)
 	if err != nil {
 		return nil, err

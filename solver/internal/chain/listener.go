@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"solver/internal/executor"
 	"solver/internal/store"
 
 	"github.com/ethereum/go-ethereum"
@@ -22,6 +23,7 @@ type ChainListener struct {
 	store           *store.IntentStore
 	client          *ethclient.Client
 	contractABI     *abi.ABI
+	executor        *executor.Executor
 }
 
 func LoadABI(path string) (*abi.ABI, error) {
@@ -46,7 +48,7 @@ func LoadABI(path string) (*abi.ABI, error) {
 	return &parsed, nil
 }
 
-func NewChainListener(rpcURL string, contractAddr common.Address, store *store.IntentStore) (*ChainListener, error) {
+func NewChainListener(rpcURL string, contractAddr common.Address, store *store.IntentStore, executor *executor.Executor) (*ChainListener, error) {
 	contractABI, err := LoadABI("internal/chain/IntentHub.json")
 	if err != nil {
 		return nil, err
@@ -63,6 +65,7 @@ func NewChainListener(rpcURL string, contractAddr common.Address, store *store.I
 		store:           store,
 		client:          ethclient,
 		contractABI:     contractABI,
+		executor:        executor,
 	}, nil
 }
 
@@ -129,8 +132,33 @@ func (l *ChainListener) handleIntentCreated(log types.Log) error {
 		return err
 	}
 
+	go func() {
+		if err := l.executor.ExecuteFulfill(context.Background(), intent); err != nil {
+			fmt.Println("fulfill error:", err)
+		}
+	}()
+
 	fmt.Printf("IntentCreated: %v\n", event)
 	return nil
+}
+
+func (l *ChainListener) handleIntentFulfilled(log types.Log) error {
+	event := make(map[string]interface{})
+	if err := l.contractABI.UnpackIntoMap(event, "IntentFulfilled", log.Data); err != nil {
+		return err
+	}
+
+	intentId := log.Topics[1]
+
+	intent, ok := l.store.Get(intentId)
+	if !ok {
+		return fmt.Errorf("intent not found: %s", intentId.Hex())
+	}
+
+	intent.Solver = event[""].(common.Address)
+	intent.Status = store.IntentStatusFulfilled
+	fmt.Println("IntentFulfilled", intentId, intent)
+	return l.store.Save(intent)
 }
 
 func (l *ChainListener) handleLog(log types.Log) error {
@@ -138,7 +166,7 @@ func (l *ChainListener) handleLog(log types.Log) error {
 	case l.contractABI.Events["IntentCreated"].ID:
 		return l.handleIntentCreated(log)
 	case l.contractABI.Events["IntentFulfilled"].ID:
-		fmt.Println("IntentFulfilled")
+		return l.handleIntentFulfilled(log)
 	case l.contractABI.Events["IntentSettled"].ID:
 		fmt.Println("IntentSettled")
 	case l.contractABI.Events["IntentCancelled"].ID:
