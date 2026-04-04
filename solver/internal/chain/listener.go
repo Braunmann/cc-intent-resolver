@@ -149,13 +149,14 @@ func (l *ChainListener) handleIntentFulfilled(log types.Log) error {
 	}
 
 	intentId := log.Topics[1]
+	solverAddr := common.BytesToAddress(log.Topics[2].Bytes())
 
 	intent, ok := l.store.Get(intentId)
 	if !ok {
 		return fmt.Errorf("intent not found: %s", intentId.Hex())
 	}
 
-	intent.Solver = event[""].(common.Address)
+	intent.Solver = solverAddr
 	intent.Status = store.IntentStatusFulfilled
 	fmt.Println("IntentFulfilled", intentId, intent)
 	return l.store.Save(intent)

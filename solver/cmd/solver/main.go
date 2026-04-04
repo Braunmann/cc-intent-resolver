@@ -17,21 +17,23 @@ import (
 )
 
 type Config struct {
-	SepoliaRPC   string
-	OPSepoliaRPC string
-	ContractAddr common.Address
-	APIPort      string
-	SolverKey    string
+	SepoliaRPC     string
+	OPSepoliaRPC   string
+	ContractAddr   common.Address
+	OpContractAddr common.Address
+	APIPort        string
+	SolverKey      string
 }
 
 func loadConfig() Config {
 	godotenv.Load()
 	return Config{
-		SepoliaRPC:   os.Getenv("SEPOLIA_WSS_URL"),
-		OPSepoliaRPC: os.Getenv("OP_SEPOLIA_WSS_URL"),
-		ContractAddr: common.HexToAddress(os.Getenv("CONTRACT_ADDRESS")),
-		APIPort:      os.Getenv("API_PORT"),
-		SolverKey:    os.Getenv("SOLVER_KEY"),
+		SepoliaRPC:     os.Getenv("SEPOLIA_WSS_URL"),
+		OPSepoliaRPC:   os.Getenv("OP_SEPOLIA_WSS_URL"),
+		ContractAddr:   common.HexToAddress(os.Getenv("CONTRACT_ADDRESS")),
+		OpContractAddr: common.HexToAddress(os.Getenv("OP_CONTRACT_ADDRESS")),
+		APIPort:        os.Getenv("API_PORT"),
+		SolverKey:      os.Getenv("SOLVER_KEY"),
 	}
 }
 
@@ -75,7 +77,7 @@ func main() {
 
 	executor := mustCreateExecutor(config.SepoliaRPC, config.ContractAddr, config.SolverKey, intentStore)
 	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore, executor)
-	opListener := mustCreateListener(config.OPSepoliaRPC, config.ContractAddr, intentStore, executor)
+	opListener := mustCreateListener(config.OPSepoliaRPC, config.OpContractAddr, intentStore, executor)
 
 	server := mustCreateServer(":"+config.APIPort, intentStore)
 
