@@ -65,3 +65,22 @@ func (e *Executor) ExecuteFulfill(ctx context.Context, intent store.Intent) erro
 
 	return nil
 }
+
+func (e *Executor) ExecuteSettle(ctx context.Context, intent store.Intent) error {
+	chainID, err := e.client.ChainID(ctx)
+	if err != nil {
+		return err
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(e.solverKey, chainID)
+	if err != nil {
+		return err
+	}
+
+	_, err = e.intentHub.SettleIntent(auth, intent.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

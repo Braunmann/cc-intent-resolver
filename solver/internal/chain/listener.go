@@ -143,11 +143,6 @@ func (l *ChainListener) handleIntentCreated(log types.Log) error {
 }
 
 func (l *ChainListener) handleIntentFulfilled(log types.Log) error {
-	event := make(map[string]interface{})
-	if err := l.contractABI.UnpackIntoMap(event, "IntentFulfilled", log.Data); err != nil {
-		return err
-	}
-
 	intentId := log.Topics[1]
 	solverAddr := common.BytesToAddress(log.Topics[2].Bytes())
 
@@ -158,8 +153,55 @@ func (l *ChainListener) handleIntentFulfilled(log types.Log) error {
 
 	intent.Solver = solverAddr
 	intent.Status = store.IntentStatusFulfilled
+
+	if err := l.store.Save(intent); err != nil {
+		return err
+	}
+
+	go func() {
+		if err := l.executor.ExecuteSettle(context.Background(), intent); err != nil {
+			fmt.Println("settle error:", err)
+		}
+	}()
+
 	fmt.Println("IntentFulfilled", intentId, intent)
-	return l.store.Save(intent)
+	return nil
+}
+
+func (l *ChainListener) handleIntentSettled(log types.Log) error {
+	intentId := log.Topics[1]
+
+	intent, ok := l.store.Get(intentId)
+	if !ok {
+		return fmt.Errorf("intent not found: %s", intentId.Hex())
+	}
+
+	intent.Status = store.IntentStatusSettled
+
+	if err := l.store.Save(intent); err != nil {
+		return err
+	}
+
+	fmt.Println("IntentSettled", intentId, intent)
+	return nil
+}
+
+func (l *ChainListener) handleIntentCancelled(log types.Log) error {
+	intentId := log.Topics[1]
+
+	intent, ok := l.store.Get(intentId)
+	if !ok {
+		return fmt.Errorf("intent not found: %s", intentId.Hex())
+	}
+
+	intent.Status = store.IntentStatusCancelled
+
+	if err := l.store.Save(intent); err != nil {
+		return err
+	}
+
+	fmt.Println("IntentCancelled", intentId, intent)
+	return nil
 }
 
 func (l *ChainListener) handleLog(log types.Log) error {
@@ -169,9 +211,9 @@ func (l *ChainListener) handleLog(log types.Log) error {
 	case l.contractABI.Events["IntentFulfilled"].ID:
 		return l.handleIntentFulfilled(log)
 	case l.contractABI.Events["IntentSettled"].ID:
-		fmt.Println("IntentSettled")
+		return l.handleIntentSettled(log)
 	case l.contractABI.Events["IntentCancelled"].ID:
-		fmt.Println("IntentCancelled")
+		return l.handleIntentCancelled(log)
 	}
 	fmt.Println(log)
 	return nil
