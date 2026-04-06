@@ -16,8 +16,9 @@ function WalletOption({ connector, onClick }: { connector: Connector; onClick: (
     <button
       disabled={!ready}
       onClick={onClick}
-      className="px-4 py-2 text-sm bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+      className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-indigo-500/20 active:scale-95"
     >
+      <span className="text-base leading-none">🦊</span>
       {connector.name}
     </button>
   )
@@ -31,13 +32,16 @@ export function ConnectButton() {
 
   if (isConnected) {
     return (
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-400">
-          {address?.slice(0, 6)}...{address?.slice(-4)}
-        </span>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
+          <span className="font-mono text-gray-300 text-xs">
+            {address?.slice(0, 6)}…{address?.slice(-4)}
+          </span>
+        </div>
         <button
           onClick={() => disconnect()}
-          className="px-4 py-2 text-sm border border-gray-600 rounded-lg hover:bg-gray-800"
+          className="px-3 py-1.5 text-xs font-medium rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-150"
         >
           Disconnect
         </button>

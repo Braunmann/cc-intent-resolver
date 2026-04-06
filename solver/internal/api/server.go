@@ -26,7 +26,9 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/v1/intents", s.handleGetIntents)
 	mux.HandleFunc("/v1/intents/{id}", s.handleGetIntent)
 
-	return http.ListenAndServe(s.port, mux)
+	handler := corsMiddleware(mux)
+
+	return http.ListenAndServe(s.port, handler)
 }
 
 func (s *Server) handleGetIntents(w http.ResponseWriter, r *http.Request) {
@@ -54,4 +56,19 @@ func (s *Server) handleGetIntent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(intent)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
