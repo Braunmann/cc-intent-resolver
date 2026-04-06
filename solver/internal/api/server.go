@@ -23,8 +23,8 @@ func NewServer(store *store.IntentStore, port string) (*Server, error) {
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/intents", s.handleGetIntents)
-	mux.HandleFunc("/intents/{id}", s.handleGetIntent)
+	mux.HandleFunc("/v1/intents", s.handleGetIntents)
+	mux.HandleFunc("/v1/intents/{id}", s.handleGetIntent)
 
 	return http.ListenAndServe(s.port, mux)
 }

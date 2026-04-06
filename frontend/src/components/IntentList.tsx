@@ -20,7 +20,7 @@ export function IntentList() {
   const [intents, setIntents] = useState<Intent[]>([])
 
   useEffect(() => {
-    fetch(`${config.apiUrl}/intents`)
+    fetch(`${config.apiUrl}/v1/intents`)
       .then(r => r.json())
       .then(setIntents)
   }, [])
