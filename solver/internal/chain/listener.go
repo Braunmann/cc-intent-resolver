@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"solver/internal/config"
 	"solver/internal/executor"
 	"solver/internal/store"
+	"strings"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -23,7 +25,8 @@ type ChainListener struct {
 	store           *store.IntentStore
 	client          *ethclient.Client
 	contractABI     *abi.ABI
-	executor        *executor.Executor
+	sourceExecutor  *executor.Executor
+	targetExecutor  *executor.Executor
 }
 
 func LoadABI(path string) (*abi.ABI, error) {
@@ -48,7 +51,7 @@ func LoadABI(path string) (*abi.ABI, error) {
 	return &parsed, nil
 }
 
-func NewChainListener(rpcURL string, contractAddr common.Address, store *store.IntentStore, executor *executor.Executor) (*ChainListener, error) {
+func NewChainListener(rpcURL string, contractAddr common.Address, store *store.IntentStore, sourceExecutor *executor.Executor, targetExecutor *executor.Executor) (*ChainListener, error) {
 	contractABI, err := LoadABI("internal/chain/IntentHub.json")
 	if err != nil {
 		return nil, err
@@ -65,7 +68,8 @@ func NewChainListener(rpcURL string, contractAddr common.Address, store *store.I
 		store:           store,
 		client:          ethclient,
 		contractABI:     contractABI,
-		executor:        executor,
+		sourceExecutor:  sourceExecutor,
+		targetExecutor:  targetExecutor,
 	}, nil
 }
 
@@ -133,7 +137,28 @@ func (l *ChainListener) handleIntentCreated(log types.Log) error {
 	}
 
 	go func() {
-		if err := l.executor.ExecuteFulfill(context.Background(), intent); err != nil {
+		ctx := context.Background()
+
+		// Step 1: If outputToken is WETH, wrap ETH → WETH on target chain
+		if isWETH(intent.OutputToken) {
+			fmt.Printf("Wrapping ETH → WETH on target chain (token=%s, amount=%s)\n",
+				intent.OutputToken.Hex(), intent.MinOutputAmount)
+			if err := l.targetExecutor.WrapETH(ctx, intent.OutputToken, intent.MinOutputAmount); err != nil {
+				fmt.Println("wrap ETH error:", err)
+				return
+			}
+		}
+
+		// Step 2: Transfer outputToken to recipient on target chain
+		if err := l.targetExecutor.TransferERC20(ctx, intent.OutputToken, intent.Recipient, intent.MinOutputAmount); err != nil {
+			fmt.Println("cross-chain transfer error:", err)
+			return
+		}
+		fmt.Printf("Cross-chain transfer done: %s -> %s (token=%s, amount=%s)\n",
+			l.targetExecutor.SolverAddress().Hex(), intent.Recipient.Hex(), intent.OutputToken.Hex(), intent.MinOutputAmount)
+
+		// Step 3: Fulfill intent on source chain
+		if err := l.sourceExecutor.ExecuteFulfill(ctx, intent); err != nil {
 			fmt.Println("fulfill error:", err)
 		}
 	}()
@@ -159,7 +184,8 @@ func (l *ChainListener) handleIntentFulfilled(log types.Log) error {
 	}
 
 	go func() {
-		if err := l.executor.ExecuteSettle(context.Background(), intent); err != nil {
+		// Settle intent on source chain (claim locked input tokens)
+		if err := l.sourceExecutor.ExecuteSettle(context.Background(), intent); err != nil {
 			fmt.Println("settle error:", err)
 		}
 	}()
@@ -202,6 +228,17 @@ func (l *ChainListener) handleIntentCancelled(log types.Log) error {
 
 	fmt.Println("IntentCancelled", intentId, intent)
 	return nil
+}
+
+func isWETH(addr common.Address) bool {
+	for _, tokenMap := range config.App.Tokens {
+		if wethAddr, ok := tokenMap["WETH"]; ok {
+			if strings.EqualFold(addr.Hex(), wethAddr) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (l *ChainListener) handleLog(log types.Log) error {

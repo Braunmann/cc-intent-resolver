@@ -16,13 +16,26 @@ const STATUS_CONFIG: Record<number, { label: string; dot: string; badge: string 
   3: { label: 'Cancelled', dot: 'bg-rose-400',     badge: 'bg-rose-400/10 text-rose-400 border-rose-400/20' },
 }
 
-export function IntentList() {
+export function IntentList({ refreshTrigger }: { refreshTrigger?: number }) {
   const [intents, setIntents] = useState<Intent[]>([])
 
-  useEffect(() => {
-    fetch(`${config.apiUrl}/v1/intents`)
+  const fetchIntents = (signal?: AbortSignal) => {
+    fetch(`${config.apiUrl}/v1/intents`, { signal })
       .then(r => r.json())
       .then(setIntents)
+      .catch(err => { if (err.name !== 'AbortError') console.error('Failed to fetch intents:', err) })
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchIntents(controller.signal)
+    return () => controller.abort()
+  }, [refreshTrigger])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const interval = setInterval(() => fetchIntents(controller.signal), 5000)
+    return () => { clearInterval(interval); controller.abort() }
   }, [])
 
   return (

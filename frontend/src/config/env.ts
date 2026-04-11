@@ -7,6 +7,8 @@ function requireEnv(key: string): string {
 
 export const config = {
   apiUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:8080',
-  chainId: Number(import.meta.env.VITE_CHAIN_ID ?? 11155111),
-  contractAddress: import.meta.env.VITE_CONTRACT_ADDRESS ?? '',
+  contractAddresses: {
+    11155111: import.meta.env.VITE_CONTRACT_ADDRESS_SEPOLIA ?? '0x0000000000000000000000000000000000000000',
+    11155420: import.meta.env.VITE_CONTRACT_ADDRESS_OP_SEPOLIA ?? '0x0000000000000000000000000000000000000000',
+  } as Record<number, `0x${string}`>
 } as const

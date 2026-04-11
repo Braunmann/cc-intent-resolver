@@ -6,7 +6,7 @@ export const config = createConfig({
   chains: [sepolia, optimismSepolia],
   connectors: [injected()],
   transports: {
-    [sepolia.id]: http(),
-    [optimismSepolia.id]: http(),
+    [sepolia.id]: http(import.meta.env.VITE_SEPOLIA_RPC_URL || undefined),
+    [optimismSepolia.id]: http(import.meta.env.VITE_OP_SEPOLIA_RPC_URL || undefined),
   },
 })

@@ -6,10 +6,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"solver/internal/api"
 	"solver/internal/chain"
 	"solver/internal/executor"
+	"solver/internal/price"
 	"solver/internal/store"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -37,8 +39,8 @@ func loadConfig() Config {
 	}
 }
 
-func mustCreateListener(rpcURL string, contractAddr common.Address, intentStore *store.IntentStore, executor *executor.Executor) *chain.ChainListener {
-	listener, err := chain.NewChainListener(rpcURL, contractAddr, intentStore, executor)
+func mustCreateListener(rpcURL string, contractAddr common.Address, intentStore *store.IntentStore, sourceExec *executor.Executor, targetExec *executor.Executor) *chain.ChainListener {
+	listener, err := chain.NewChainListener(rpcURL, contractAddr, intentStore, sourceExec, targetExec)
 	if err != nil {
 		fmt.Println("Error creating chain listener:", err)
 		os.Exit(1)
@@ -73,11 +75,17 @@ func mustCreateExecutor(rpcURL string, contractAddr common.Address, solverKey st
 func main() {
 	config := loadConfig()
 
+	price.StartPriceUpdater(5 * time.Minute)
+
 	intentStore := store.NewIntentStore()
 
-	executor := mustCreateExecutor(config.SepoliaRPC, config.ContractAddr, config.SolverKey, intentStore)
-	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore, executor)
-	opListener := mustCreateListener(config.OPSepoliaRPC, config.OpContractAddr, intentStore, executor)
+	sepoliaExecutor := mustCreateExecutor(config.SepoliaRPC, config.ContractAddr, config.SolverKey, intentStore)
+	opSepoliaExecutor := mustCreateExecutor(config.OPSepoliaRPC, config.OpContractAddr, config.SolverKey, intentStore)
+
+	// Sepolia listener: source=sepolia (fulfill/settle), target=opSepolia (transfer tokens)
+	listener := mustCreateListener(config.SepoliaRPC, config.ContractAddr, intentStore, sepoliaExecutor, opSepoliaExecutor)
+	// OP Sepolia listener: source=opSepolia (fulfill/settle), target=sepolia (transfer tokens)
+	opListener := mustCreateListener(config.OPSepoliaRPC, config.OpContractAddr, intentStore, opSepoliaExecutor, sepoliaExecutor)
 
 	server := mustCreateServer(":"+config.APIPort, intentStore)
 

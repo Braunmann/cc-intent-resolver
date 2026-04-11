@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"solver/internal/config"
+	"solver/internal/price"
 	"solver/internal/store"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -25,6 +27,8 @@ func (s *Server) Start() error {
 
 	mux.HandleFunc("/v1/intents", s.handleGetIntents)
 	mux.HandleFunc("/v1/intents/{id}", s.handleGetIntent)
+	mux.HandleFunc("/v1/prices", s.handleGetPrices)
+	mux.HandleFunc("/v1/config", s.handleGetConfig)
 
 	handler := corsMiddleware(mux)
 
@@ -56,6 +60,18 @@ func (s *Server) handleGetIntent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(intent)
+}
+
+func (s *Server) handleGetPrices(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(price.GetPrices())
+}
+
+func (s *Server) handleGetConfig(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(config.App)
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
